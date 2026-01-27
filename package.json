@@ -15,7 +15,7 @@
     "url": "git+https://github.com/tetherto/svc-facs-logging.git"
   },
   "dependencies": {
-    "@bitfinex/bfx-facs-base": "git+https://github.com/bitfinexcom/bfx-facs-base.git",
+    "@bitfinex/bfx-facs-base": "git+https://github.com/sargekhan/bfx-facs-base.git#feat/js-config-support",
     "async": "^3.2.6",
     "b4a": "^1.6.7",
     "hyperswarm": "^4.13.1",
