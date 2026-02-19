@@ -79,50 +79,34 @@ class LoggingFacility extends Base {
   }
 
   _createLoggerWithTransport (baseConfig) {
-    const transportConfig = {
-      targets: [
-        {
-          target: './lib/pino-hyperswarm-exporter',
-          options: {
-            app: baseConfig.name,
-            topic: this.conf.transport.topic,
-            secretKey: this.conf.transport.secretKey,
-            maxRetries: this.conf.transport.maxRetries || 3,
-            retryDelay: this.conf.transport.retryDelay || 200
-          }
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 1 },
-          level: 'debug'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 1 },
-          level: 'info'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 2 },
-          level: 'error'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 2 },
-          level: 'warn'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 2 },
-          level: 'fatal'
-        }
-      ]
-    }
+    const stdout = pino.destination(1)
+    const stderr = pino.destination(2)
 
-    return pino({
-      ...baseConfig,
-      transport: transportConfig
+    const hyperswarmTransport = pino.transport({
+      target: './lib/pino-hyperswarm-exporter',
+      options: {
+        app: baseConfig.name,
+        topic: this.conf.transport.topic,
+        secretKey: this.conf.transport.secretKey,
+        maxRetries: this.conf.transport.maxRetries || 3,
+        retryDelay: this.conf.transport.retryDelay || 200
+      }
     })
+
+    const consoleStream = pino.multistream([
+      { level: 'debug', stream: stdout },
+      { level: 'info', stream: stdout },
+      { level: 'warn', stream: stderr },
+      { level: 'error', stream: stderr },
+      { level: 'fatal', stream: stderr }
+    ], { dedupe: true })
+
+    const combinedStream = pino.multistream([
+      { level: 'trace', stream: hyperswarmTransport },
+      { level: 'trace', stream: consoleStream }
+    ])
+
+    return pino(baseConfig, combinedStream)
   }
 
   _createFallbackLogger (baseConfig) {
