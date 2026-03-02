@@ -94,11 +94,10 @@ class LoggingFacility extends Base {
     })
 
     const consoleStream = pino.multistream([
+      // should do debug,info and if debug is disabled, should do info
       { level: 'debug', stream: stdout },
-      { level: 'info', stream: stdout },
-      { level: 'warn', stream: stderr },
-      { level: 'error', stream: stderr },
-      { level: 'fatal', stream: stderr }
+      // should do warn,error,fatal
+      { level: 'warn', stream: stderr }
     ], { dedupe: true })
 
     const combinedStream = pino.multistream([
