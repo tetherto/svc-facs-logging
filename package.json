@@ -1,5 +1,5 @@
 {
-  "name": "svc-facs-logging",
+  "name": "@tetherto/svc-facs-logging",
   "version": "1.0.0",
   "description": "Logging facility that forwards application logs over hyperswarm",
   "main": "index.js",
