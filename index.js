@@ -82,7 +82,7 @@ class LoggingFacility extends Base {
     const stdout = pino.destination(1)
     const stderr = pino.destination(2)
 
-    const hyperswarmTransport = pino.transport({
+    this._transport = pino.transport({
       target: './lib/pino-hyperswarm-exporter',
       options: {
         app: baseConfig.name,
@@ -101,7 +101,7 @@ class LoggingFacility extends Base {
     ], { dedupe: true })
 
     const combinedStream = pino.multistream([
-      { level: 'trace', stream: hyperswarmTransport },
+      { level: 'trace', stream: this._transport },
       { level: 'trace', stream: consoleStream }
     ])
 
@@ -131,6 +131,10 @@ class LoggingFacility extends Base {
         if (this.logger) {
           this.logger.flush()
           delete this.logger
+        }
+
+        if (this._transport) {
+          this._transport.end()
         }
       }
     ], cb)
