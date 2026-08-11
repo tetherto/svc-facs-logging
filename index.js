@@ -79,50 +79,33 @@ class LoggingFacility extends Base {
   }
 
   _createLoggerWithTransport (baseConfig) {
-    const transportConfig = {
-      targets: [
-        {
-          target: './lib/pino-hyperswarm-exporter',
-          options: {
-            app: baseConfig.name,
-            topic: this.conf.transport.topic,
-            secretKey: this.conf.transport.secretKey,
-            maxRetries: this.conf.transport.maxRetries || 3,
-            retryDelay: this.conf.transport.retryDelay || 200
-          }
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 1 },
-          level: 'debug'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 1 },
-          level: 'info'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 2 },
-          level: 'error'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 2 },
-          level: 'warn'
-        },
-        {
-          target: 'pino/file',
-          options: { destination: 2 },
-          level: 'fatal'
-        }
-      ]
-    }
+    const stdout = pino.destination(1)
+    const stderr = pino.destination(2)
 
-    return pino({
-      ...baseConfig,
-      transport: transportConfig
+    this._transport = pino.transport({
+      target: './lib/pino-hyperswarm-exporter',
+      options: {
+        app: baseConfig.name,
+        topic: this.conf.transport.topic,
+        secretKey: this.conf.transport.secretKey,
+        maxRetries: this.conf.transport.maxRetries || 3,
+        retryDelay: this.conf.transport.retryDelay || 200
+      }
     })
+
+    const consoleStream = pino.multistream([
+      // should do debug,info and if debug is disabled, should do info
+      { level: 'debug', stream: stdout },
+      // should do warn,error,fatal
+      { level: 'warn', stream: stderr }
+    ], { dedupe: true })
+
+    const combinedStream = pino.multistream([
+      { level: 'trace', stream: this._transport },
+      { level: 'trace', stream: consoleStream }
+    ])
+
+    return pino(baseConfig, combinedStream)
   }
 
   _createFallbackLogger (baseConfig) {
@@ -148,6 +131,10 @@ class LoggingFacility extends Base {
         if (this.logger) {
           this.logger.flush()
           delete this.logger
+        }
+
+        if (this._transport) {
+          this._transport.end()
         }
       }
     ], cb)
