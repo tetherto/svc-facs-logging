@@ -93,6 +93,10 @@ class LoggingFacility extends Base {
       }
     })
 
+    this._transport.on('error', (err) => {
+      console.error(`Log transport error: ${err.message}`)
+    })
+
     const consoleStream = pino.multistream([
       // should do debug,info and if debug is disabled, should do info
       { level: 'debug', stream: stdout },
