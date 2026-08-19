@@ -31,5 +31,9 @@
   "bugs": {
     "url": "https://github.com/tetherto/svc-facs-logging/issues"
   },
-  "homepage": "https://github.com/tetherto/svc-facs-logging#readme"
+  "homepage": "https://github.com/tetherto/svc-facs-logging#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }
