@@ -88,8 +88,8 @@ class LoggingFacility extends Base {
         app: baseConfig.name,
         topic: this.conf.transport.topic,
         secretKey: this.conf.transport.secretKey,
-        maxRetries: this.conf.transport.maxRetries || 3,
-        retryDelay: this.conf.transport.retryDelay || 200
+        maxQueueSize: this.conf.transport.maxQueueSize || 5000,
+        flushTimeout: this.conf.transport.flushTimeout ?? 2000
       }
     })
 
